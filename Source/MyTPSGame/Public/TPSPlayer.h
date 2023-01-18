@@ -8,6 +8,9 @@
 
 class USpringArmComponent; //전방선언
 
+#define GRENADE_GUN true
+#define SNIPER_GUN false
+
 UCLASS()
 class MYTPSGAME_API ATPSPlayer : public ACharacter
 {
@@ -22,6 +25,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	const bool AGRENADE_GUN = true; //const 상수
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -31,14 +36,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USpringArmComponent* springArmComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCameraComponent* cameraComp;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ABulletActor> bulletFactory;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class USkeletalMeshComponent* gunMeshComp;
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* sniperMeshComp;
 
 	void OnAxisHorizontal(float value);
 
@@ -58,4 +66,34 @@ public:
 	
 	FVector direction;
 	
+	FTimerHandle fireTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bChooseGrenadeGun;
+
+	void ChooseGun(bool bGrenade);
+
+	UPROPERTY(EditAnywhere)
+	float fireInterval = 0.5f;
+
+	//위젯 공장에서 위젯을 생성
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> crosshairFactory;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> sniperFactory;
+
+	UPROPERTY()
+	class UUserWidget* crosshairUI;
+
+	UPROPERTY()
+	class UUserWidget* sniperUI;
+
+	void OnActionGrenade();
+
+	void OnActionSniper();
+
+	void OnActionZoomIn();
+	
+	void OnActionZoomOut();
 };

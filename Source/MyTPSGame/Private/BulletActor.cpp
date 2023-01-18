@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "../MyTPSGame.h"
 
 // Sets default values
 ABulletActor::ABulletActor()
@@ -33,7 +34,22 @@ ABulletActor::ABulletActor()
 void ABulletActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//SetLifeSpan(2);
+
+	//Lambda ÇÔ¼ö
+	//Ä¸ÃÄ
+	//int number = 1;
+	//auto myPrint = [number]()->void { int b = number; };
+	//auto myPlus = [this](int a, int b)->int {return a + b; };
+	//PRINT_LOG(TEXT("%d"), myPlus(20, 10));
+
+	FTimerHandle dieTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(dieTimerHandle, this, &ABulletActor::OnDie, 2.0f, false);
 	
+	//Lambda½Ä
+	//GetWorldTimerManager().SetTimer(dieTimerHandle, FTimerDelegate::CreateLambda([this]()->void {Destroy(); }), 2, false);
+
 }
 
 // Called every frame
@@ -41,5 +57,10 @@ void ABulletActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ABulletActor::OnDie()
+{
+	Destroy();
 }
 

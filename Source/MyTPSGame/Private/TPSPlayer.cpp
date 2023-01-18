@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "BulletActor.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 ATPSPlayer::ATPSPlayer()
@@ -24,7 +25,6 @@ ATPSPlayer::ATPSPlayer()
 		//4. transform을 수정하고 싶다
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90.0f), FRotator(0, -90.0f, 0));
 	}
-
 	//스프링암, 카메라 컴포넌트 생성
 	//스프링암 root, 카메라 스프링암에 상속
 	springArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("springArmComp"));
@@ -50,13 +50,33 @@ ATPSPlayer::ATPSPlayer()
 
 		gunMeshComp->SetRelativeLocationAndRotation(FVector(-15.0f, 40.0f, 133.0f), FRotator(0, 0, 0));
 	}
-}
 
+	sniperMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("sniperMeshComp"));
+	sniperMeshComp->SetupAttachment(GetMesh());
+	ConstructorHelpers::FObjectFinder<UStaticMesh> tempSniperMesh(TEXT("/Script/Engine.StaticMesh'/Game/SniperGun/sniper1.sniper1'"));
+	if (tempSniperMesh.Succeeded())
+	{
+		sniperMeshComp->SetStaticMesh(tempSniperMesh.Object);
+
+		sniperMeshComp->SetRelativeLocationAndRotation(FVector(-13.0f, 68.0f, 142.0f), FRotator(0, 0, 0));
+	
+		sniperMeshComp->SetRelativeScale3D(FVector(0.15f));
+	}
+}
 // Called when the game starts or when spawned
 void ATPSPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+	//UI를 생성하고 싶다
+	crosshairUI = CreateWidget(GetWorld(), crosshairFactory);
+	sniperUI = CreateWidget(GetWorld(), sniperFactory);
 	
+	//1. 태어날때 cui를 보이게 하고 싶다
+	crosshairUI->AddToViewport();
+
+	ChooseGun(GRENADE_GUN);
 }
 
 // Called every frame
@@ -87,6 +107,10 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ATPSPlayer::OnActionJump);
 	PlayerInputComponent->BindAction(TEXT("FireBullet"), IE_Pressed, this, &ATPSPlayer::OnActionFirePressed);
 	PlayerInputComponent->BindAction(TEXT("FireBullet"), IE_Released, this, &ATPSPlayer::OnActionFireRelesed);
+	PlayerInputComponent->BindAction(TEXT("GrenadeGun"), IE_Pressed, this, &ATPSPlayer::OnActionGrenade);
+	PlayerInputComponent->BindAction(TEXT("SniperGun"), IE_Pressed, this, &ATPSPlayer::OnActionSniper);
+	PlayerInputComponent->BindAction(TEXT("SniperZoom"), IE_Pressed, this, &ATPSPlayer::OnActionZoomIn);
+	PlayerInputComponent->BindAction(TEXT("SniperZoom"), IE_Released, this, &ATPSPlayer::OnActionZoomOut);
 
 }
 
@@ -119,18 +143,80 @@ void ATPSPlayer::OnActionJump()
 
 void ATPSPlayer::OnActionFirePressed()
 {
+	GetWorldTimerManager().SetTimer(fireTimerHandle, this, &ATPSPlayer::DoFire, fireInterval, true);
+
 	DoFire();
 }
 
 void ATPSPlayer::OnActionFireRelesed()
 {
-
+	GetWorldTimerManager().ClearTimer(fireTimerHandle);
 }
 
 void ATPSPlayer::DoFire()
 {
 	FTransform t = gunMeshComp->GetSocketTransform(TEXT("FirePosition"));
 
+	//t.SetRotation(FQuat(GetControlRotation()));
+
 	GetWorld()->SpawnActor<ABulletActor>(bulletFactory, t);
 }
 
+void ATPSPlayer::ChooseGun(bool bGrenade)
+{
+	//만약 바꾸기 전에 스나이퍼건이고 바꾸려는게 유탄이면
+	if (bChooseGrenadeGun == false && bGrenade == true)
+	{
+		//fov를 90, cui o, sui x
+		cameraComp->SetFieldOfView(90);
+		crosshairUI->AddToViewport();
+		sniperUI->RemoveFromParent();
+	}
+	
+	bChooseGrenadeGun = bGrenade;
+
+	gunMeshComp->SetVisibility(bGrenade);
+
+	sniperMeshComp->SetVisibility(!bGrenade);
+
+	//3항 연산자
+	//bool result = bGrenade ? false : true;
+}
+
+void ATPSPlayer::OnActionGrenade()
+{
+	ChooseGun(GRENADE_GUN);
+	//ChooseGun(true);
+}
+
+void ATPSPlayer::OnActionSniper()
+{
+	ChooseGun(SNIPER_GUN);
+	//ChooseGun(false);
+}
+
+void ATPSPlayer::OnActionZoomIn()
+{
+	//fov 확대
+	if (bChooseGrenadeGun != false)
+	{
+		return;
+	}
+	
+	cameraComp->SetFieldOfView(20);
+	crosshairUI->RemoveFromParent();
+	sniperUI->AddToViewport();
+}
+
+void ATPSPlayer::OnActionZoomOut()
+{
+	//fov 축소
+	if (bChooseGrenadeGun != false)
+	{
+		return;
+	}
+
+	cameraComp->SetFieldOfView(90);
+	crosshairUI->AddToViewport();
+	sniperUI->RemoveFromParent();
+}
