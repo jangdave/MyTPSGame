@@ -96,4 +96,8 @@ public:
 	void OnActionZoomIn();
 	
 	void OnActionZoomOut();
+
+	UPROPERTY(EditDefaultsOnly)
+	class UParticleSystem* bulletImpactFactory;
+	
 };

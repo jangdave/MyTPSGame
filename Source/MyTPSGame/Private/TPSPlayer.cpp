@@ -7,6 +7,9 @@
 #include "Camera/CameraComponent.h"
 #include "BulletActor.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Enemy.h"
+#include "EnemyFSM.h"
 
 // Sets default values
 ATPSPlayer::ATPSPlayer()
@@ -143,9 +146,61 @@ void ATPSPlayer::OnActionJump()
 
 void ATPSPlayer::OnActionFirePressed()
 {
-	GetWorldTimerManager().SetTimer(fireTimerHandle, this, &ATPSPlayer::DoFire, fireInterval, true);
+	//만약 기본총이라면
+	if (bChooseGrenadeGun)
+	{
+		GetWorldTimerManager().SetTimer(fireTimerHandle, this, &ATPSPlayer::DoFire, fireInterval, true);
 
-	DoFire();
+		DoFire();
+	}
+	//그렇지 않다면
+	else
+	{
+		FHitResult hitInfo;
+		FVector start = cameraComp->GetComponentLocation();
+		FVector end = start + cameraComp->GetForwardVector()*100000.0f;
+		FCollisionQueryParams params;
+		params.AddIgnoredActor(this);
+		//바라보고싶다
+		bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECollisionChannel::ECC_Visibility, params);
+		//만약에 부딪힌것이 있다면
+		if (bHit)
+		{
+			FTransform trans(hitInfo.ImpactPoint);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletImpactFactory, trans);
+			
+			//만약 부딪힌 액터가 enemy라면
+			//auto hitActor = hitInfo.GetActor();
+			auto enemy = Cast<AEnemy>(hitInfo.GetActor());
+			if (enemy != nullptr)
+			{
+				//enemy에게 데미지를 준다
+				UEnemyFSM* fsm = Cast<UEnemyFSM>(enemy->GetDefaultSubobjectByName(TEXT("enemyFSM")));
+				
+				fsm->OnDamageProcess(1);
+			}
+			
+			//상호작용하고 싶다
+			auto hitComp = hitInfo.GetComponent();
+			//부딪힌 물체가 물리작용을 하고있다면
+			if (hitComp != nullptr && hitComp->IsSimulatingPhysics())
+			{
+				//힘을 가하고 싶다
+				FVector forceDir = (hitInfo.TraceEnd - hitInfo.TraceStart).GetSafeNormal();
+				//foreceDir.Normalize();
+				FVector force = forceDir * 100000.0f * hitComp->GetMass();
+				hitComp->AddForce(force);
+			}
+		}
+		//라인말고 박스랑 스피어 종류도 있음
+		//UKismetSystemLibrary::Boxtrace
+		
+		//오브젝트로 하면 이렇게 채널로 추가할수있다
+		//FCollisionObjectQueryParams objParams;
+		//objParams.AddObjectTypesToQuery(ECollisionChannel::ECC_EngineTraceChannel1);
+		//GetWorld()->LineTraceSingleByObjectType();
+	}
+
 }
 
 void ATPSPlayer::OnActionFireRelesed()
