@@ -99,5 +99,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UParticleSystem* bulletImpactFactory;
-	
+
+	UPROPERTY(EditAnywhere)
+	class USoundBase* fireSound;
+
 };

@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Enemy.h"
 #include "EnemyFSM.h"
+#include "TPSPlayerAnim.h"
 
 // Sets default values
 ATPSPlayer::ATPSPlayer()
@@ -45,25 +46,31 @@ ATPSPlayer::ATPSPlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	gunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("gunMeshComp"));
-	gunMeshComp->SetupAttachment(GetMesh());
+	gunMeshComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempGunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
 	if (tempGunMesh.Succeeded())
 	{
 		gunMeshComp->SetSkeletalMesh(tempGunMesh.Object);
 
-		gunMeshComp->SetRelativeLocationAndRotation(FVector(-15.0f, 40.0f, 133.0f), FRotator(0, 0, 0));
+		gunMeshComp->SetRelativeLocationAndRotation(FVector(-7.94f, 3.54f, -0.80f), FRotator(1.72f, 109.85f,-9.85f));
 	}
 
 	sniperMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("sniperMeshComp"));
-	sniperMeshComp->SetupAttachment(GetMesh());
+	sniperMeshComp->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 	ConstructorHelpers::FObjectFinder<UStaticMesh> tempSniperMesh(TEXT("/Script/Engine.StaticMesh'/Game/SniperGun/sniper1.sniper1'"));
 	if (tempSniperMesh.Succeeded())
 	{
 		sniperMeshComp->SetStaticMesh(tempSniperMesh.Object);
 
-		sniperMeshComp->SetRelativeLocationAndRotation(FVector(-13.0f, 68.0f, 142.0f), FRotator(0, 0, 0));
+		sniperMeshComp->SetRelativeLocationAndRotation(FVector(-34.58f, -6.86f, 4.85f), FRotator(0.17f, 105.63f, -5.52f));
 	
 		sniperMeshComp->SetRelativeScale3D(FVector(0.15f));
+	}
+
+	ConstructorHelpers::FObjectFinder<USoundBase> tempFireSound(TEXT("/Script/Engine.SoundWave'/Game/SniperGun/Rifle.Rifle'"));
+	if(tempFireSound.Succeeded())
+	{
+		fireSound = tempFireSound.Object;
 	}
 }
 // Called when the game starts or when spawned
@@ -146,6 +153,14 @@ void ATPSPlayer::OnActionJump()
 
 void ATPSPlayer::OnActionFirePressed()
 {
+	//총쏘는 애니메이션을 재생
+	auto anim = Cast<UTPSPlayerAnim>(GetMesh()->GetAnimInstance());
+
+	anim->OnFire();
+
+	//총소리를 낸다
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, GetActorLocation(), GetActorRotation());
+
 	//만약 기본총이라면
 	if (bChooseGrenadeGun)
 	{
