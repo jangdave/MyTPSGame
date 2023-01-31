@@ -7,6 +7,7 @@
 #include "Enemy.h"
 #include "../MyTPSGame.h"
 #include <Components/CapsuleComponent.h>
+#include "EnemyAnim.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -35,6 +36,9 @@ void UEnemyFSM::BeginPlay()
 void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	//본체의 animinstance의 state에 내 state를 넣어준다
+	me->enemyAnim->state = this->state;
 
 	switch (state)
 	{
@@ -75,7 +79,7 @@ void UEnemyFSM::TIckIdle()
 	if (target != nullptr)
 	{
 		//3. 이동으로 전이
-		state = EEnemyState::MOVE;
+		SetState(EEnemyState::MOVE);
 	}
 }
 
@@ -95,7 +99,7 @@ void UEnemyFSM::TickMove()
 	if (attackRange >= dist)
 	{
 		//4. 공격으로 전이
-		state = EEnemyState::ATTACK;
+		SetState(EEnemyState::ATTACK);
 	}
 }
 
@@ -124,7 +128,7 @@ void UEnemyFSM::TickAttack()
 		//5. 계속 공격을 할것인지 판단하고 싶다
 		if (dist > attackRange)
 		{
-			state = EEnemyState::MOVE;
+			SetState(EEnemyState::MOVE);
 		}
 		else
 		{
@@ -140,7 +144,7 @@ void UEnemyFSM::TickDamage()
 	currentTime += GetWorld()->GetDeltaSeconds();
 	if (currentTime > 1)
 	{
-		state = EEnemyState::MOVE;
+		SetState(EEnemyState::MOVE);
 		currentTime = 0;
 	}
 }
@@ -167,7 +171,7 @@ void UEnemyFSM::OnDamageProcess(int32 damageAmount)
 	if (hp <= 0)
 	{
 		//Die
-		state = EEnemyState::DIE;
+		SetState(EEnemyState::DIE);
 
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
@@ -175,6 +179,12 @@ void UEnemyFSM::OnDamageProcess(int32 damageAmount)
 	else
 	{
 		//Damage한다
-		state = EEnemyState::DAMAGE;
+		SetState(EEnemyState::DAMAGE);
 	}
+}
+
+void UEnemyFSM::SetState(EEnemyState next)
+{
+	state = next;
+	me->enemyAnim->state = next;
 }

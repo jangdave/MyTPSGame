@@ -58,11 +58,25 @@ public:
 	
 	void OnActionJump();
 
+	void OnActionRunPressed();
+
+	void OnActionRunReleased();
+
+	void OnActionCouchPressed();
+
+	void OnActionCouchReleased();
+
 	void OnActionFirePressed();
 
 	void OnActionFireRelesed();
 
 	void DoFire();
+
+	float runSpeed = 600.0f;
+
+	float walkSpeed = 400.0f;
+
+	float crouchSpeed = 200.0f;
 	
 	FVector direction;
 	
@@ -103,4 +117,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USoundBase* fireSound;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCameraShakeBase> camShakeFactory;
+
+	UPROPERTY(EditAnywhere)
+	class UCameraShakeBase* canShakeInstance;
 };

@@ -62,6 +62,8 @@ public:
 
 	int32 maxHP = 2;
 
+	void SetState(EEnemyState next);
+
 	//이벤트 함수, callback 함수
 	void OnDamageProcess(int32); //자료형만 써도 된다
 
