@@ -8,6 +8,7 @@
 #include "../MyTPSGame.h"
 #include <Components/CapsuleComponent.h>
 #include "EnemyAnim.h"
+#include "AIController.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -28,6 +29,8 @@ void UEnemyFSM::BeginPlay()
 	state = EEnemyState::IDLE; //암시적 int a = 10; float b = a; 명시적 float b = float(a);
 	
 	me = Cast<AEnemy>(GetOwner());
+
+	ai = Cast<AAIController>(me->GetController());
 
 	hp = maxHP;
 }
@@ -91,7 +94,8 @@ void UEnemyFSM::TickMove()
 	//1. 목적지로 향하는 방향 설정
 	FVector dir = target->GetActorLocation() - me->GetActorLocation();
 	//2. 그 방향으로 이동
-	me->AddMovementInput(dir.GetSafeNormal());
+	ai->MoveToLocation(target->GetActorLocation());
+	//me->AddMovementInput(dir.GetSafeNormal());
 	//3. 공격가능거리보다 짧다면
 	//float dist = target->GetDistanceTo(me); //GetDistanceTo 상대와 나의 거리
 	float dist = dir.Size();
@@ -110,21 +114,11 @@ void UEnemyFSM::TickAttack()
 	//1. 시간이 흐르다가
 	currentTime += GetWorld()->GetDeltaSeconds();
 
-	float dist = target->GetDistanceTo(me);
-
-	//2. 현재시간이 공격시간을 초과하면
-	if (bAttackPlay == false && currentTime > 0.1f)
-	{
-		bAttackPlay = true;
-		//3. 공격을 한다(조건은 공격거리 안에 있는가)
-		if (dist <= attackRange)
-		{
-			PRINT_LOG(TEXT("Enemyisattack"));
-		}
-	}
 	//4. 공격동작이 끝났다면
-	if (currentTime > 2)
+	if (currentTime > attackDelayTime)
 	{
+		float dist = target->GetDistanceTo(me);
+
 		//5. 계속 공격을 할것인지 판단하고 싶다
 		if (dist > attackRange)
 		{
@@ -134,6 +128,7 @@ void UEnemyFSM::TickAttack()
 		{
 			currentTime = 0;
 			bAttackPlay = false;
+			me->enemyAnim->bAttackPlay = true;
 		}
 	}
 }
@@ -151,6 +146,12 @@ void UEnemyFSM::TickDamage()
 
 void UEnemyFSM::TickDie()
 {
+	//만약 넘어지는 애니메이션이 끝나지 않았다면
+	if(me->enemyAnim->bEnemyDieEnd == false)
+	{
+		return;
+	}
+
 	currentTime += GetWorld()->GetDeltaSeconds();
 	
 	FVector p0 = me->GetActorLocation();
@@ -165,6 +166,10 @@ void UEnemyFSM::TickDie()
 //player에게 공격당함
 void UEnemyFSM::OnDamageProcess(int32 damageAmount)
 {
+	if(ai != nullptr)
+	{
+		ai->StopMovement();
+	}
 	//체력을 소모하고
 	hp -= damageAmount;
 	//체력이 0이 되면
@@ -172,6 +177,9 @@ void UEnemyFSM::OnDamageProcess(int32 damageAmount)
 	{
 		//Die
 		SetState(EEnemyState::DIE);
+		me->enemyAnim->bEnemyDieEnd = false;
+		//몽타주의 die를 플레이
+		me->OnMyDamage(TEXT("Die"));
 
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
@@ -180,6 +188,33 @@ void UEnemyFSM::OnDamageProcess(int32 damageAmount)
 	{
 		//Damage한다
 		SetState(EEnemyState::DAMAGE);
+
+		int32 index = FMath::RandRange(0, 1);
+		FString sectionName = FString::Printf(TEXT("Damage%d"), index);
+
+		me->OnMyDamage(FName(*sectionName));
+
+		//if(FMath::RandRange(0,100)>50)
+		//{
+		//	enemy->OnMyDamage(TEXT("Damage0"));
+		//}
+		//else
+		//{
+		//	enemy->OnMyDamage(TEXT("Damage1"));
+		//}
+	}
+}
+
+void UEnemyFSM::OnHitEvent()
+{
+	float dist = target->GetDistanceTo(me);
+
+	me->enemyAnim->bAttackPlay = false;
+
+	//3. 공격을 한다(조건은 공격거리 안에 있는가)
+	if (dist <= attackRange)
+	{
+		PRINT_LOG(TEXT("Enemyisattack"));
 	}
 }
 
@@ -187,4 +222,5 @@ void UEnemyFSM::SetState(EEnemyState next)
 {
 	state = next;
 	me->enemyAnim->state = next;
+	currentTime = 0;
 }

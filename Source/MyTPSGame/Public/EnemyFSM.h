@@ -46,6 +46,9 @@ public:
 
 	bool bAttackPlay;
 
+	UPROPERTY(EditAnywhere)
+	float attackDelayTime = 3;
+
 private:
 	void TIckIdle();
 
@@ -60,11 +63,14 @@ private:
 public:
 	int32 hp;
 
-	int32 maxHP = 2;
+	int32 maxHP = 10;
 
 	void SetState(EEnemyState next);
 
 	//이벤트 함수, callback 함수
 	void OnDamageProcess(int32); //자료형만 써도 된다
+	
+	void OnHitEvent();
 
+	class AAIController* ai;
 };
