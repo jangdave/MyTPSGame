@@ -26,7 +26,29 @@ void UTPSPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 	isInAir = owner->GetCharacterMovement()->IsFalling();
 }
 
-void UTPSPlayerAnim::OnFire()
+void UTPSPlayerAnim::OnFire(FName sectionName)
 {
-	Montage_Play(fireMontageFactory);
+	ATPSPlayer* owner = Cast<ATPSPlayer>(TryGetPawnOwner());
+	owner->PlayAnimMontage(fireMontageFactory, 1, sectionName);
+	//Montage_Play(fireMontageFactory);
+}
+
+void UTPSPlayerAnim::OnGunReload()
+{
+	ATPSPlayer* owner = Cast<ATPSPlayer>(TryGetPawnOwner());
+
+	if(owner != nullptr)
+	{
+		owner->ReloadGun();
+	}
+}
+
+void UTPSPlayerAnim::OnSniperReload()
+{
+	ATPSPlayer* owner = Cast<ATPSPlayer>(TryGetPawnOwner());
+
+	if(owner != nullptr)
+	{
+		owner->ReloadSniper();
+	}
 }

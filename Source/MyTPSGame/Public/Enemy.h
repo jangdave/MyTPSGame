@@ -35,4 +35,11 @@ public:
 	//선언과 호출은 c++ 구현은 블루프린트
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMyDamage(FName sectionName); //player->enemy
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 hp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 maxHP = 10;
+
 };

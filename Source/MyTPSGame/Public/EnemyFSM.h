@@ -16,6 +16,14 @@ enum class EEnemyState : uint8 //0~255
 	DIE,
 };
 
+UENUM(BlueprintType)
+enum class EEnemyMoveSubState : uint8
+{
+	PATROL,
+	CHASE,
+	OLD_MOVE,
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MYTPSGAME_API UEnemyFSM : public UActorComponent
 {
@@ -35,8 +43,12 @@ public:
 
 	EEnemyState state;
 
+	EEnemyMoveSubState moveSubState;
+
+	UPROPERTY()
 	class ATPSPlayer* target; //caching
 
+	UPROPERTY()
 	class AEnemy* me;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -52,6 +64,10 @@ public:
 private:
 	void TIckIdle();
 
+	void TickPatrol();
+
+	void TickChase();
+
 	void TickMove();
 
 	void TickAttack();
@@ -61,10 +77,6 @@ private:
 	void TickDie();
 	
 public:
-	int32 hp;
-
-	int32 maxHP = 10;
-
 	void SetState(EEnemyState next);
 
 	//이벤트 함수, callback 함수
@@ -72,5 +84,29 @@ public:
 	
 	void OnHitEvent();
 
+	void TickMoveOldMove();
+
 	class AAIController* ai;
+
+	UPROPERTY(EditAnywhere)
+	float randomLocationRadius = 500.0f;
+
+	FVector randomLocation;
+
+	bool UpdateRandomLocation(float radius, FVector& outLocation);
+
+	//pathmanager 알고싶다
+	UPROPERTY()
+	class APathManager* pathManager;
+
+	//pathmanager의 waypoint를 이용해서 목적지 정하기
+	int wayIndex;
+
+	//patrol에서 감지 거리
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float detectDistance = 500.0f;
+
+	//chase에서 추적포기 거리 : 감지거리보다 길어야 한다
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float abandonDistance = 800.0f;
 };

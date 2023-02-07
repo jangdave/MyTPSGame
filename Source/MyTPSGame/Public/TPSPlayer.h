@@ -122,4 +122,20 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UCameraShakeBase* canShakeInstance;
+
+	//ÅºÃ¢ ¸®·Îµå
+	void OnActionReload();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 maxGunAmmo = 20;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 gunAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 maxSniperAmmo = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 sniperAmmo;
+
+	void ReloadGun();
+	void ReloadSniper();
 };

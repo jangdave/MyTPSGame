@@ -88,6 +88,10 @@ void ATPSPlayer::BeginPlay()
 	ChooseGun(GRENADE_GUN);
 
 	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+
+	gunAmmo = maxGunAmmo;
+
+	sniperAmmo = maxSniperAmmo;
 }
 
 // Called every frame
@@ -126,6 +130,7 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction(TEXT("Run"), IE_Released, this, &ATPSPlayer::OnActionRunReleased);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &ATPSPlayer::OnActionCouchPressed);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &ATPSPlayer::OnActionCouchReleased);
+	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &ATPSPlayer::OnActionReload);
 }
 
 void ATPSPlayer::OnAxisHorizontal(float value)
@@ -177,6 +182,32 @@ void ATPSPlayer::OnActionCouchReleased()
 
 void ATPSPlayer::OnActionFirePressed()
 {
+	//총을 쏠때 총알이 남아있는지 검증
+	//만약 남아있다면 1발 차감
+	//그렇지 않느면 총을 쏘지 않음
+	if(bChooseGrenadeGun)
+	{
+		if(gunAmmo > 0)
+		{
+			gunAmmo--;
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if(sniperAmmo > 0)
+		{
+			sniperAmmo--;
+		}
+		else
+		{
+			return;
+		}
+	}
+	
 	//카메라를 흔들고 싶다
 	auto cameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 
@@ -192,8 +223,8 @@ void ATPSPlayer::OnActionFirePressed()
 	//총쏘는 애니메이션을 재생
 	auto anim = Cast<UTPSPlayerAnim>(GetMesh()->GetAnimInstance());
 
-	anim->OnFire();
-
+	anim->OnFire(TEXT("Default"));
+	
 	//총소리를 낸다
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, GetActorLocation(), GetActorRotation());
 
@@ -325,4 +356,28 @@ void ATPSPlayer::OnActionZoomOut()
 	cameraComp->SetFieldOfView(90);
 	crosshairUI->AddToViewport();
 	sniperUI->RemoveFromParent();
+}
+
+void ATPSPlayer::OnActionReload()
+{
+	auto anim = Cast<UTPSPlayerAnim>(GetMesh()->GetAnimInstance());
+	
+	if(bChooseGrenadeGun)
+	{
+		anim->OnFire(TEXT("GunReload"));
+	}
+	else
+	{
+		anim->OnFire(TEXT("SniperReload"));
+	}
+}
+
+void ATPSPlayer::ReloadGun()
+{
+	gunAmmo = maxGunAmmo;
+}
+
+void ATPSPlayer::ReloadSniper()
+{
+	sniperAmmo = maxSniperAmmo;
 }
