@@ -1,10 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SpawnManager.h"
 #include "Enemy.h"
 #include "Spawn.h"
 #include "Kismet/GameplayStatics.h"
+#include "MyTPSGame/MyTPSGameGameModeBase.h"
 
 // Sets default values
 ASpawnManager::ASpawnManager()
@@ -21,7 +22,7 @@ void ASpawnManager::BeginPlay()
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawn::StaticClass(), spawnList);
 
-	//·£´ýÇÑ ½Ã°£ ÈÄ¿¡ Àû »ý¼ºÇÔ¼ö È£Ãâ
+	//ëžœë¤ ì‹œê°„ í›„ì— ì  ìƒì„±
 	int32 randTime = FMath::RandRange(minTime, maxTime);
 	GetWorld()->GetTimerManager().SetTimer(spawnEnemyTimer, this, &ASpawnManager::MakeEnemy, randTime, false);
 	//FTimerManager::SetTimer(spawnEnemyTimer, this, &ASpawnManager::MakeEnemy, 2.0f, false);
@@ -36,20 +37,41 @@ void ASpawnManager::Tick(float DeltaTime)
 
 void ASpawnManager::MakeEnemy()
 {
-	int rIndex = 0;
-
-	rIndex = FMath::RandRange(0, spawnList.Num() - 1);
-	//ÀûÀ» »ý¼º
-	if(rIndex == preIndex)
+	//ë§Œë“  ê°¯ìˆ˜ê°€ ëª©í‘œ ê°¯ìˆ˜ë³´ë‹¤ ìž‘ë‹¤ë©´ ë§Œë“¤ê³  ì‹¶ë‹¤
+	if(makeCount < makeTargetCount)
 	{
-		rIndex = (rIndex + 1) % spawnList.Num();
+		makeCount++;
+		
+		int rIndex = FMath::RandRange(0, spawnList.Num() - 1);
+		
+		if(rIndex == preIndex)
+		{
+			rIndex = (rIndex + 1) % spawnList.Num();
+		}
+		preIndex = rIndex;
+
+		FVector loc = spawnList[rIndex]->GetActorLocation();
+		FRotator rot = spawnList[rIndex]->GetActorRotation();
+
+		int rate = FMath::RandRange(0, 99);
+		int levelTargetRate = 50;
+
+		int level = Cast<AMyTPSGameGameModeBase>(GetWorld()->GetAuthGameMode())->level;
+		if(level < 5)
+		{
+			levelTargetRate = 50;
+		}
+		else
+		{
+			levelTargetRate = -1;
+		}
+		if(rate < levelTargetRate)
+		{
+			GetWorld()->SpawnActor<AEnemy>(enemyFactory, loc, rot);
+		}
+		
 	}
-	preIndex = rIndex;
-
-	FVector loc = spawnList[rIndex]->GetActorLocation();
-	FRotator rot = spawnList[rIndex]->GetActorRotation();
-	GetWorld()->SpawnActor<AEnemy>(enemyFactory, loc, rot);
-
+	
 	int32 randTime = FMath::RandRange(minTime, maxTime);
 	GetWorld()->GetTimerManager().SetTimer(spawnEnemyTimer, this, &ASpawnManager::MakeEnemy, randTime, false);
 }

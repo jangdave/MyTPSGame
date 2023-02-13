@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,28 +23,30 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	//·£´ı½Ã°£¸¶´Ù ÀûÀ» ·£´ı À§Ä¡¿¡ »ı¼ºÇÏ°í ½Í´Ù
-	//- ·£´ı À§Ä¡¸¦ À§ÇÑ À§Ä¡ ¸ñ·Ï
+	//ëœë¤ì‹œê°„ë§ˆë‹¤ ì ì„ ëœë¤ ìœ„ì¹˜ì— ìƒì„±
+	//-ëœë¤ìœ„ì¹˜ë¥¼ ìœ„í•œ ëª©ë¡
 	UPROPERTY(EditAnywhere)
 	TArray<AActor*> spawnList;
-	//- ÃÖ¼Ò ÃÖ´ë½Ã°£
+	//-ìµœì†Œ ìµœëŒ€ì‹œê°„
 	UPROPERTY(EditAnywhere)
 	float minTime = 1.0f;
 
 	UPROPERTY(EditAnywhere)
 	float maxTime = 2.0f;
 
-	//»ı¼ºÇÒ ½Ã°£
 	float createTime;
 
-	//- Å¸ÀÌ¸ÓÇÚµé
 	FTimerHandle spawnEnemyTimer;
 
-	//- Àû°øÀå
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AEnemy> enemyFactory;
 
 	void MakeEnemy();
 
 	float preIndex = -1;
+
+	//ë§Œë“  ê°¯ìˆ˜
+	int makeCount;
+	//ëª©í‘œ ê°¯ìˆ˜
+	int makeTargetCount;
 };

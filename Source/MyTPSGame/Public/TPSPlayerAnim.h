@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isInAir;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isCrouching;
+
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* fireMontageFactory;
 

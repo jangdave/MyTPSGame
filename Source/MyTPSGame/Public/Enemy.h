@@ -41,5 +41,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 maxHP = 10;
-
 };

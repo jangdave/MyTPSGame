@@ -3,6 +3,7 @@
 
 #include "TPSPlayerAnim.h"
 #include "TPSPlayer.h"
+#include "TPSPlayerFireComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void UTPSPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
@@ -24,6 +25,7 @@ void UTPSPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 	rightVelocity = FVector::DotProduct(velocity, rigvelocity);
 	//isInAir를 구한다
 	isInAir = owner->GetCharacterMovement()->IsFalling();
+	isCrouching = owner->GetCharacterMovement()->IsCrouching();
 }
 
 void UTPSPlayerAnim::OnFire(FName sectionName)
@@ -39,7 +41,7 @@ void UTPSPlayerAnim::OnGunReload()
 
 	if(owner != nullptr)
 	{
-		owner->ReloadGun();
+		owner->fireComp->ReloadGun();
 	}
 }
 
@@ -49,6 +51,6 @@ void UTPSPlayerAnim::OnSniperReload()
 
 	if(owner != nullptr)
 	{
-		owner->ReloadSniper();
+		owner->fireComp->ReloadSniper();
 	}
 }

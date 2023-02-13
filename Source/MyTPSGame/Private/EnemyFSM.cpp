@@ -12,6 +12,7 @@
 //#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "NavigationSystem.h"
 #include "PathManager.h"
+#include "MyTPSGame/MyTPSGameGameModeBase.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -22,7 +23,6 @@ UEnemyFSM::UEnemyFSM()
 
 	// ...
 }
-
 
 // Called when the game starts
 void UEnemyFSM::BeginPlay()
@@ -189,6 +189,7 @@ void UEnemyFSM::TickAttack()
 	{
 		float dist = target->GetDistanceTo(me);
 
+		target->OnHit(1);
 		//5. 계속 공격을 할것인지 판단하고 싶다
 		if (dist > attackRange)
 		{
@@ -252,6 +253,9 @@ void UEnemyFSM::OnDamageProcess(int32 damageAmount)
 		me->OnMyDamage(TEXT("Die"));
 
 		me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		//게임모드의 AddExp 함수를 호출하고 싶다 1전
+		Cast<AMyTPSGameGameModeBase>(GetWorld()->GetAuthGameMode())->AddExp(1);
 	}
 	//그렇지 않다면
 	else
@@ -292,7 +296,7 @@ void UEnemyFSM::TickMoveOldMove()
 {
 	//A.내가 갈 수 있는 길 위에 target이 있는가
 	UNavigationSystemV1* ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
-
+	
 	FPathFindingQuery query;
 	FAIMoveRequest request;
 	request.SetGoalLocation(target->GetActorLocation());

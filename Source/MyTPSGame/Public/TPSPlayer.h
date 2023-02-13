@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "TPSPlayer.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FSetupInputDelegate, class UInputComponent*);
+
 class USpringArmComponent; //전방선언
 
 #define GRENADE_GUN true
@@ -34,13 +36,18 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere)
+	class UTPSPlayerMoveComponent* moveComp;
+
+	UPROPERTY(EditAnywhere)
+	class UTPSPlayerFireComponent* fireComp;
+
+	//-----------------------------------------------------------
+
+	UPROPERTY(EditAnywhere)
 	class USpringArmComponent* springArmComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCameraComponent* cameraComp;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class ABulletActor> bulletFactory;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class USkeletalMeshComponent* gunMeshComp;
@@ -48,94 +55,26 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* sniperMeshComp;
 
-	void OnAxisHorizontal(float value);
+	FSetupInputDelegate setupInputDelegate;
 
-	void OnAxisVertical(float value);
-
-	void OnAxisLookUp(float value);
-	
-	void OnAxisTurnRight(float value);
-	
-	void OnActionJump();
-
-	void OnActionRunPressed();
-
-	void OnActionRunReleased();
-
-	void OnActionCouchPressed();
-
-	void OnActionCouchReleased();
-
-	void OnActionFirePressed();
-
-	void OnActionFireRelesed();
-
-	void DoFire();
-
-	float runSpeed = 600.0f;
-
-	float walkSpeed = 400.0f;
-
-	float crouchSpeed = 200.0f;
-	
-	FVector direction;
-	
-	FTimerHandle fireTimerHandle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bChooseGrenadeGun;
-
-	void ChooseGun(bool bGrenade);
-
-	UPROPERTY(EditAnywhere)
-	float fireInterval = 0.5f;
-
-	//위젯 공장에서 위젯을 생성
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UUserWidget> crosshairFactory;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UUserWidget> sniperFactory;
+	void OnHit(int damage);
 
 	UPROPERTY()
-	class UUserWidget* crosshairUI;
+	int HP;
 
 	UPROPERTY()
-	class UUserWidget* sniperUI;
+	int MaxHP = 2;
 
-	void OnActionGrenade();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMyGameOver();
 
-	void OnActionSniper();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMyChooseGun(bool isGrenadeGun);
 
-	void OnActionZoomIn();
-	
-	void OnActionZoomOut();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMyGrenadeGunAmmoUpdate(int current, int max);
 
-	UPROPERTY(EditDefaultsOnly)
-	class UParticleSystem* bulletImpactFactory;
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMySniperGunAmmoUpdate(int current, int max);
 
-	UPROPERTY(EditAnywhere)
-	class USoundBase* fireSound;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UCameraShakeBase> camShakeFactory;
-
-	UPROPERTY(EditAnywhere)
-	class UCameraShakeBase* canShakeInstance;
-
-	//탄창 리로드
-	void OnActionReload();
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 maxGunAmmo = 20;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 gunAmmo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 maxSniperAmmo = 5;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 sniperAmmo;
-
-	void ReloadGun();
-	void ReloadSniper();
 };
