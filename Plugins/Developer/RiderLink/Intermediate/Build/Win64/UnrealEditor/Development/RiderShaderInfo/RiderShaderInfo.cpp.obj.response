@@ -1,4 +1,4 @@
-C:\unreal\MyTPSGame\Plugins\Developer\RiderLink\Source\RiderShaderInfo\RiderShaderInfo.cpp
+D:\MyTPSGame\Plugins\Developer\RiderLink\Source\RiderShaderInfo\RiderShaderInfo.cpp
 /I .
 /I Runtime
 /I Runtime\TraceLog\Public
@@ -7,17 +7,17 @@ C:\unreal\MyTPSGame\Plugins\Developer\RiderLink\Source\RiderShaderInfo\RiderShad
 /I Runtime\Json\Public
 /I Runtime\RenderCore\Public
 /I Runtime\RHI\Public
-/I C:\unreal\MyTPSGame\Plugins\Developer\RiderLink\Source
+/I D:\MyTPSGame\Plugins\Developer\RiderLink\Source
 /external:W0
 /external:I ThirdParty\mimalloc\include
-/external:I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\INCLUDE"
-/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\ucrt"
-/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
-/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
-/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
-/FI"C:\unreal\MyTPSGame\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\Definitions.h"
-/Fo"C:\unreal\MyTPSGame\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
-/sourceDependencies C:\unreal\MyTPSGame\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.dep.json
+/external:I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\INCLUDE"
+/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\ucrt"
+/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\shared"
+/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\um"
+/external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\winrt"
+/FI"D:\MyTPSGame\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\Definitions.h"
+/Fo"D:\MyTPSGame\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
+/sourceDependencies D:\MyTPSGame\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.dep.json
 /Zc:inline
 /nologo
 /Oi
